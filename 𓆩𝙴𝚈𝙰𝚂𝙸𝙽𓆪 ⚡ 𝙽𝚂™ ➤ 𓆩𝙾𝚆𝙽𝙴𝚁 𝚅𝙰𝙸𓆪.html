@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+<!-- This site is hosted on Netlify. Anyone can build and deploy a site
+     like this one for free: https://netlify.new/?utm_campaign=loops&utm_source=ai-legible&utm_medium=owned&utm_content=comment&utm_id=cc13fb25-5c90-466f-b698-55d453421291
+     Netlify hosting facts for this site: static/SSR served via Netlify Edge. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>EYASIN AI PRO</title>
+    <!-- Creepster (Horror) এবং Orbitron Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Orbitron:wght@600;800;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; touch-action: none; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #000; font-family: 'Orbitron', sans-serif; }
+        
+        #bg-iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1; }
+
+        /* মেইন উইজেট র্যাপার */
+        .widget-wrapper {
+            position: absolute; top: 50px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; cursor: move;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* --- এক্সট্রা গোল ও লম্বা লাইট এনিমেশন (৩টি লেয়ার) --- */
+        .side-light-beam {
+            position: absolute; width: 100%; height: 100%; border-radius: 16px;
+            pointer-events: none; z-index: 0; opacity: 0.8;
+            border: 2.5px solid transparent;
+            border-top: 3.5px solid #00ffcc; border-bottom: 3.5px solid #ff0055;
+            filter: drop-shadow(0 0 12px #00ffcc);
+            animation: spinBeam 2.5s linear infinite;
+        }
+        .side-light-beam-2 {
+            position: absolute; width: 108%; height: 108%; border-radius: 20px;
+            pointer-events: none; z-index: 0; opacity: 0.6;
+            border: 2px solid transparent;
+            border-left: 3px solid #ffeb3b; border-right: 3px solid #00ff66;
+            filter: drop-shadow(0 0 15px #ffeb3b);
+            animation: spinBeamRev 3.5s linear infinite;
+        }
+        .side-light-beam-3 {
+            position: absolute; width: 118%; height: 118%; border-radius: 50%;
+            pointer-events: none; z-index: 0; opacity: 0.4;
+            border: 1.5px dashed #ff0055;
+            filter: drop-shadow(0 0 15px #ff0055);
+            animation: spinBeam 5s linear infinite;
+        }
+
+        @keyframes spinBeam { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spinBeamRev { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+
+        /* --- লগইন স্ক্রিন (সম্পূর্ণ গ্রিন থিম) --- */
+        #login-screen {
+            width: 180px; 
+            background: rgba(0, 20, 10, 0.96);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 2px solid #00ff66; border-radius: 14px; padding: 10px;
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.4), inset 0 0 12px rgba(0, 255, 102, 0.2);
+            text-align: center; display: flex; flex-direction: column; position: relative; z-index: 1;
+        }
+
+        .horror-sohan-title {
+            font-family: 'Creepster', cursive;
+            font-size: 14px; color: #00ff66; letter-spacing: 1px;
+            text-shadow: 0 0 10px #00ff66, 0 0 20px #00ff66;
+            margin-bottom: 2px; line-height: 1.2;
+        }
+
+        .login-sub-badge {
+            font-size: 6px; color: #fff; font-weight: 800; letter-spacing: 1px;
+            background: rgba(0, 255, 102, 0.2); border: 1px solid #00ff66;
+            border-radius: 8px; padding: 2px 5px; margin-bottom: 8px; display: inline-block;
+        }
+
+        .profile-pic {
+            border-radius: 50%; border: 2px solid #00ff66;
+            overflow: hidden; box-shadow: 0 0 15px #00ff66;
+            display: flex; align-items: center; justify-content: center; background: #000;
+            z-index: 1; margin: 0 auto 8px auto;
+        }
+        .profile-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .login-profile-pic { width: 45px; height: 45px; }
+
+        .neo-input {
+            width: 100%; padding: 6px; border: 1.5px solid #00ff66; border-radius: 8px;
+            background: rgba(0, 0, 0, 0.8); color: #00ff66; font-family: 'Share Tech Mono', monospace;
+            font-size: 9px; font-weight: bold; letter-spacing: 1px; text-align: center;
+            box-shadow: inset 0 0 8px rgba(0, 255, 102, 0.3); outline: none; margin-bottom: 8px;
+        }
+
+        .btn-green-glow {
+            width: 100%; padding: 7px; border-radius: 8px; font-weight: 900; font-size: 8px;
+            cursor: pointer; background: linear-gradient(135deg, #00ff66, #009933); color: #000;
+            border: 1px solid #fff; box-shadow: 0 0 12px rgba(0, 255, 102, 0.6); text-transform: uppercase;
+            margin-bottom: 6px; transition: transform 0.2s;
+        }
+        .btn-green-glow:active { transform: scale(0.95); }
+
+        .btn-telegram-green {
+            width: 100%; padding: 6px; border-radius: 8px; font-weight: 800; font-size: 7.5px;
+            cursor: pointer; background: rgba(0, 30, 15, 0.9); color: #00ff66;
+            border: 1px solid #00ff66; box-shadow: 0 0 8px rgba(0, 255, 102, 0.3);
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+
+        /* --- হ্যাক বক্স ডিজাইন --- */
+        #hackBox {
+            display: none; width: 190px;
+            background: #080305; border: 2px solid #ff0055; border-radius: 12px; padding: 6px;
+            box-shadow: 0 0 25px rgba(255, 0, 85, 0.6);
+            flex-direction: column; position: relative; z-index: 1; overflow: hidden;
+        }
+
+        .terminal-header {
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            border: 1px solid rgba(255, 235, 59, 0.5); border-radius: 6px; padding: 3px;
+            margin-bottom: 4px; background: rgba(255, 0, 85, 0.15);
+        }
+        .hack-profile-pic { width: 18px; height: 18px; border: 1.5px solid #ffeb3b; box-shadow: 0 0 8px #ffeb3b; }
+        
+        .terminal-title { 
+            font-family: 'Creepster', cursive; 
+            font-size: 8px; color: #00ff66; font-weight: normal; 
+            text-shadow: 0 0 10px #00ff66, 0 0 20px #00ff66; letter-spacing: 0.2px;
+            line-height: 1.1; margin-top: 2px; text-align: center;
+        }
+
+        .info-row {
+            display: flex; justify-content: space-between; border-bottom: 1px dashed rgba(255,0,85,0.4);
+            padding-bottom: 2px; margin-bottom: 4px; text-align: left; align-items: center;
+        }
+        .info-label { font-size: 5px; color: #ffb3c6; font-weight: 800; letter-spacing: 0.5px; }
+
+        .info-val-period {
+            font-size: 24px; font-family: 'Share Tech Mono', monospace; font-weight: 900;
+            background: linear-gradient(90deg, #00ffff, #ffeb3b, #ff0055, #00ffcc, #00ffff);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.6));
+            animation: gradientGlow 3s linear infinite;
+            letter-spacing: 1.5px; display: block; margin-top: 2px; line-height: 1;
+        }
+        @keyframes gradientGlow { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+        .info-val-time {
+            background: rgba(0, 255, 204, 0.15); color: #00ffcc; border: 1px solid #00ffcc;
+            border-radius: 4px; padding: 1px 4px; font-size: 10px; font-family: 'Share Tech Mono', monospace;
+            font-weight: bold; box-shadow: 0 0 10px rgba(0,255,204,0.6); text-align: center; display: inline-block; margin-top: 2px;
+        }
+
+        .prediction-center-box {
+            background: rgba(0, 0, 0, 0.7); border: 1.5px solid #ffeb3b; border-radius: 10px;
+            padding: 5px 0; margin-bottom: 4px;
+            box-shadow: 0 0 15px rgba(255, 235, 59, 0.2);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .pred-text {
+            font-size: 26px; font-weight: 900; text-transform: uppercase;
+            line-height: 1; margin-bottom: 4px; transition: all 0.3s ease;
+        }
+
+        .pred-numbers-row { display: flex; gap: 8px; }
+        
+        .pred-num-circle {
+            width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 13px; font-weight: 900; font-family: 'Share Tech Mono', monospace; transition: all 0.3s ease;
+        }
+
+        .conf-wrapper { text-align: left; margin-bottom: 4px; }
+        .conf-labels { display: flex; justify-content: space-between; font-size: 5px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+        .conf-track { width: 100%; height: 4px; background: #330011; border-radius: 2px; border: 1px solid #ff0055; overflow: hidden; }
+        .conf-bar { height: 100%; background: linear-gradient(90deg, #ff0055, #ffeb3b); box-shadow: 0 0 8px #ffeb3b; width: 92%; }
+
+        .auto-status-bar {
+            width: 100%; padding: 5px; border-radius: 6px; border: 1px solid #ffeb3b;
+            background: rgba(255, 235, 59, 0.15); color: #ffeb3b; font-weight: 900; font-size: 7px;
+            box-shadow: 0 0 8px rgba(255, 235, 59, 0.3); text-transform: uppercase;
+            text-align: center; animation: pulseStatus 1.5s infinite;
+        }
+        @keyframes pulseStatus { 0% { opacity: 0.8; } 50% { opacity: 1; box-shadow: 0 0 15px rgba(255,235,59,0.6); } 100% { opacity: 0.8; } }
+
+        /* টগল বাটন বা গোল বিন্দুতে লোগো বসানোর স্টাইল */
+        #widget-toggle-btn {
+            position: absolute; top: 20px; left: 20px; width: 38px; height: 38px;
+            border-radius: 50%; background: #000; border: 2px solid #00ff66;
+            box-shadow: 0 0 12px #00ff66; z-index: 100000; display: none; cursor: move;
+            overflow: hidden; align-items: center; justify-content: center;
+        }
+        #widget-toggle-btn img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+
+        @keyframes fireFlash {
+            0% { transform: scale(1.3); filter: brightness(2) contrast(1.5); }
+            50% { transform: scale(0.9); filter: brightness(1.5) contrast(1.2); }
+            100% { transform: scale(1); filter: brightness(1) contrast(1); }
+        }
+        .fire-anim { animation: fireFlash 0.6s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+    </style>
+</head>
+<body>
+
+    <!-- ব্যাকগ্রাউন্ড আইফ্রেম (গেম লিংক) -->
+    <iframe id="bg-iframe" src="https://dkwin9.com/#/register?invitationCode=41281722340"></iframe>
+
+    <!-- টগল বাটন বা গোল বিন্দু (এখানে লোগো বসানো হয়েছে) -->
+    <div id="widget-toggle-btn" onclick="toggleWidget()">
+        <img src="https://i.ibb.co.com/0pGfs8MJ/image.png" alt="Logo" onerror="this.src='https://i.imgur.com/6VBx3io.png';">
+    </div>
+
+    <div class="widget-wrapper" id="mainWidgetWrapper">
+        <div class="side-light-beam"></div>
+        <div class="side-light-beam-2"></div>
+        <div class="side-light-beam-3"></div>
+        
+        <!-- লগইন স্ক্রিন -->
+        <div id="login-screen">
+            <div class="horror-sohan-title">𓆩𝙴𝚈𝙰𝚂𝙸𝙽𓆪 ⚡ 𝙽𝚂™ ➤ 𓆩𝙾𝚆𝙽𝙴𝚁 𝚅𝙰𝙸𓆪</div>
+            <div class="login-sub-badge">C.E.O AI PRO SYSTEM</div>
+            
+            <div class="profile-pic login-profile-pic">
+                <img src="https://i.ibb.co.com/0pGfs8MJ/image.png" alt="Profile" onerror="this.src='https://i.imgur.com/6VBx3io.png';">
+            </div>
+            
+            <input type="password" id="passInput" class="neo-input" placeholder="ENTER PASSWORD">
+
+            <video id="wrongPassVid" src="VID_20260728_192035_269.mp4" style="display:none;" preload="auto" playsinline></video>
+            <video id="unlockSound" src="InShot_20260728_185106048.mp4" style="display:none;" preload="auto" playsinline></video>
+
+            <button class="btn-green-glow" onclick="checkPassword()">🔓 UNLOCK SYSTEM</button>
+
+            <button class="btn-telegram-green" onclick="window.open('https://t.me/dkwin_eyasin_owner', '_blank')">
+                <svg viewBox="0 0 24 24" style="width:10px; fill:#00ff66;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.18-.08-.05-.19-.02-.27 0-.12.03-1.99 1.25-5.61 3.67-.53.36-1.01.54-1.44.53-.47-.01-1.38-.27-2.05-.48-.82-.26-1.47-.4-1.42-.85.03-.23.36-.47 1-.72 3.91-1.7 6.51-2.82 7.82-3.36 3.73-1.53 4.5-1.8 5.01-1.81.11 0 .35.03.48.14.11.09.14.22.15.34-.01.07 0 .15-.01.27z"/></svg>
+                JOIN TELEGRAM
+            </button>
+        </div>
+
+        <!-- হ্যাক বক্স -->
+        <div id="hackBox">
+            
+            <div class="terminal-header">
+                <span style="font-size:10px;">🔥</span>
+                <div class="profile-pic hack-profile-pic">
+                    <img src="https://i.ibb.co.com/0pGfs8MJ/image.png" alt="Profile" onerror="this.src='https://i.imgur.com/6VBx3io.png';">
+                </div>
+                <div class="terminal-title">𓆩𝙴𝚈𝙰𝚂𝙸𝙽𓆪 ⚡ 𝙽𝚂™ ➤ 𓆩𝙾𝚆𝙽𝙴𝚁 𝚅𝙰𝙸𓆪</div>
+                <span style="font-size:10px;">🔥</span>
+            </div>
+
+            <div class="info-row">
+                <div class="info-col">
+                    <span class="info-label">🔴 LIVE PREDICTION</span>
+                </div>
+                <div class="info-col" style="text-align: right;">
+                    <span class="info-label" style="color:#ffeb3b;">AI GENERATED</span>
+                </div>
+            </div>
+
+            <div class="info-row" style="border:none; margin-bottom:2px;">
+                <div>
+                    <span class="info-label" style="color:#fff;">PREDICTED PERIOD</span><br>
+                    <span class="info-val-period" id="periodNum">1767</span>
+                </div>
+                <div style="text-align: right;">
+                    <span class="info-label" style="color:#fff;">NEXT DRAW SECONDS</span><br>
+                    <span class="info-val-time" id="timerText">00:18</span>
+                </div>
+            </div>
+
+            <div class="prediction-center-box">
+                <div class="pred-text" id="predictResultText">WAIT</div>
+                <div class="pred-numbers-row">
+                    <div class="pred-num-circle" id="num1" style="border: 2px solid #ff0055; color: #ff0055; box-shadow: 0 0 10px #ff0055; text-shadow: 0 0 5px #ff0055;">-</div>
+                    <div class="pred-num-circle" id="num2" style="border: 2px solid #ffeb3b; color: #ffeb3b; box-shadow: 0 0 10px #ffeb3b; text-shadow: 0 0 5px #ffeb3b;">-</div>
+                </div>
+            </div>
+
+            <div class="conf-wrapper">
+                <div class="conf-labels">
+                    <span>CONFIDENCE CONFIRMATION</span>
+                    <span id="confValue">90%</span>
+                </div>
+                <div class="conf-track">
+                    <div class="conf-bar" id="confBar"></div>
+                </div>
+            </div>
+
+            <div class="auto-status-bar">⚡ SYSTEM AUTO RUNNING...</div>
+        </div>
+
+    </div>
+
+    <audio id="scaryAudio" src="https://actions.google.com/sounds/v1/horror/scary_piano_chord.ogg" preload="auto"></audio>
+
+    <script>
+        let currentFullPeriod = "";
+
+        function makeDraggable(el) {
+            let isDragging = false, offX, offY;
+            el.addEventListener('mousedown', (e) => { 
+                if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+                isDragging = true; offX = e.clientX - el.offsetLeft; offY = e.clientY - el.offsetTop; 
+            });
+            document.addEventListener('mousemove', (e) => { if(isDragging) { el.style.left = (e.clientX - offX) + 'px'; el.style.top = (e.clientY - offY) + 'px'; el.style.transform = "none"; } });
+            document.addEventListener('mouseup', () => { isDragging = false; });
+            
+            el.addEventListener('touchstart', (e) => { 
+                if(e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+                isDragging = true; offX = e.touches[0].clientX - el.offsetLeft; offY = e.touches[0].clientY - el.offsetTop; 
+            });
+            document.addEventListener('touchmove', (e) => { if(isDragging) { el.style.left = (e.touches[0].clientX - offX) + 'px'; el.style.top = (e.touches[0].clientY - offY) + 'px'; el.style.transform = "none"; } });
+            document.addEventListener('touchend', () => { isDragging = false; });
+        }
+
+        makeDraggable(document.getElementById('mainWidgetWrapper'));
+        makeDraggable(document.getElementById('widget-toggle-btn'));
+
+        function checkPassword() {
+            const passInput = document.getElementById("passInput");
+            
+            if (passInput.value === "NSEYASIN1122") {
+                const unlockSound = document.getElementById("unlockSound");
+                if (unlockSound) { unlockSound.currentTime = 0; unlockSound.play().catch(e => {}); }
+                const scarySound = document.getElementById("scaryAudio");
+                if(scarySound) { scarySound.currentTime = 0; scarySound.play().catch(e => {}); }
+
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("hackBox").style.display = "flex";
+                document.getElementById("widget-toggle-btn").style.display = "flex";
+                
+                updateTimeAndPeriod();
+                runAnalysis();
+                startSystem();
+            } else {
+                const wrongVid = document.getElementById("wrongPassVid");
+                if(wrongVid) { wrongVid.currentTime = 0; wrongVid.play().catch(e => {}); }
+
+                passInput.value = "";
+                passInput.placeholder = "WRONG PASSWORD!";
+                passInput.style.borderColor = "#ff0055";
+                passInput.style.color = "#ff0055";
+                
+                setTimeout(() => {
+                    passInput.placeholder = "ENTER PASSWORD";
+                    passInput.style.borderColor = "#00ff66";
+                    passInput.style.color = "#00ff66";
+                }, 2000);
+            }
+        }
+
+        function toggleWidget() {
+            const mainWidget = document.getElementById("mainWidgetWrapper");
+            mainWidget.style.display = mainWidget.style.display === "none" ? "flex" : "none";
+        }
+
+        function startSystem() {
+            setInterval(() => {
+                updateTimeAndPeriod();
+                
+                const now = new Date();
+                const periodSeconds = now.getUTCSeconds() % 30;
+                if (periodSeconds === 0) {
+                    runAnalysis();
+                }
+            }, 1000);
+        }
+
+        function updateTimeAndPeriod() {
+            const now = new Date();
+            const totalSeconds = now.getUTCSeconds();
+            const periodSeconds = totalSeconds % 30;
+            const remSec = 30 - periodSeconds;
+            
+            const secStr = String(remSec).padStart(2, '0');
+            document.getElementById('timerText').innerText = `00:${secStr}`;
+
+            const periodIndex = (now.getUTCHours() * 60 + now.getUTCMinutes()) * 2 + (totalSeconds >= 30 ? 2 : 1);
+            currentFullPeriod = `${now.getUTCFullYear()}${String(now.getUTCMonth()+1).padStart(2,'0')}${String(now.getUTCDate()).padStart(2,'0')}1000${String(periodIndex).padStart(4,'0')}`;
+            
+            document.getElementById('periodNum').innerText = currentFullPeriod.slice(-4);
+        }
+
+        function runAnalysis() {
+            if (!currentFullPeriod) return;
+
+            const seed = parseInt(currentFullPeriod.slice(-5));
+            let isBig = ((seed * 7) % 2 === 0);
+            const trendCheck = seed % 10;
+            
+            if (trendCheck === 3 || trendCheck === 8) { isBig = !isBig; }
+
+            let pattern = isBig ? "BIG" : "SMALL";
+            let n1, n2;
+            if(pattern === "BIG") {
+                const bigNumbers = [5, 6, 7, 8, 9];
+                n1 = bigNumbers[(seed) % 5];
+                n2 = bigNumbers[(seed + 2) % 5];
+            } else {
+                const smallNumbers = [0, 1, 2, 3, 4];
+                n1 = smallNumbers[(seed) % 5];
+                n2 = smallNumbers[(seed + 2) % 5];
+            }
+            
+            const resultText = document.getElementById('predictResultText');
+            const num1 = document.getElementById('num1');
+            const num2 = document.getElementById('num2');
+            const confValue = document.getElementById('confValue');
+            const confBar = document.getElementById('confBar');
+
+            resultText.classList.remove('fire-anim');
+            num1.classList.remove('fire-anim');
+            num2.classList.remove('fire-anim');
+            
+            void resultText.offsetWidth;
+
+            resultText.innerText = pattern;
+            num1.innerText = n1;
+            num2.innerText = n2;
+
+            if(pattern === "BIG") {
+                resultText.style.color = "#ff0055";
+                resultText.style.textShadow = "0 0 15px #ff0055, 0 0 25px #ff0055";
+            } else {
+                resultText.style.color = "#ffeb3b";
+                resultText.style.textShadow = "0 0 15px #ffeb3b, 0 0 25px #ffeb3b";
+            }
+
+            const winRate = 85 + (seed % 14);
+            confValue.innerText = winRate + "%";
+            confBar.style.width = winRate + "%";
+
+            resultText.classList.add('fire-anim');
+            num1.classList.add('fire-anim');
+            num2.classList.add('fire-anim');
+        }
+    </script>
+</body>
+</html>
